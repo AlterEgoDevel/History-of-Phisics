@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тести з історії України</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #262626;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 195px;
+            height: 100px;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .reset-button {
+            background-color: #d9d9d9;
+            border: none;
+            padding: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 30px;
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        .reset-button:hover {
+            background-color: #c0c0c0;
+        }
+        .menu {
+            background-color: #3a3a3a;
+            height: 50px;
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .question-box {
+            background-color: #d9d9d9;
+            padding: 20px;
+            margin-bottom: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        .question {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .answers label {
+            display: block;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>Тести з історії України (7 клас)</div>
+        <button class="reset-button" onclick="resetQuiz()">Reset</button>
+    </div>
+    <div class="menu"></div>
+    <div class="container" id="quiz-container"></div>
+    <div class="score" id="score">Правильних відповідей: 0/12</div>
+    
+    <script>
+        const questions = [
+            { question: "Яка держава утворилася в результаті об’єднання земель Київської Русі?", options: ["Литва", "Польща", "Галицько-Волинське князівство", "Османська імперія"], answer: "Галицько-Волинське князівство" },
+            { question: "Хто був першим князем Київської Русі, що прийняв християнство?", options: ["Володимир Великий", "Ярослав Мудрий", "Олег", "Святослав"], answer: "Володимир Великий" },
+            { question: "У якому році Київська Русь прийняла християнство як державну релігію?", options: ["862", "988", "1240", "1054"], answer: "988" },
+            { question: "Яке місто було столицею Галицько-Волинського князівства при Данилові Галицькому?", options: ["Київ", "Львів", "Холм", "Чернігів"], answer: "Холм" },
+            { question: "Яке військо складалося переважно з кочових народів і воювало проти Київської Русі?", options: ["Литовці", "Половці", "Угорці", "Вікінги"], answer: "Половці" },
+            { question: "Хто з князів Київської Русі створив перший писаний збірник законів \"Руська правда\"?", options: ["Святослав", "Володимир Великий", "Ярослав Мудрий", "Олег"], answer: "Ярослав Мудрий" },
+            { question: "Яка подія відбулася у 1240 році?", options: ["Монгольська навала на Київ", "Хрещення Русі", "Заснування Львова", "Поразка печенігів"], answer: "Монгольська навала на Київ" },
+            { question: "Який князь Київської Русі започаткував карбування власної монети?", options: ["Володимир Великий", "Ярослав Мудрий", "Святослав Ігорович", "Олег"], answer: "Володимир Великий" },
+            { question: "Яка держава напала на Київ у 1169 році?", options: ["Візантія", "Литовське князівство", "Володимиро-Суздальське князівство", "Польща"], answer: "Володимиро-Суздальське князівство" },
+            { question: "Хто був засновником міста Чернігів?", options: ["Данило Галицький", "Святослав Ігорович", "Ярослав Мудрий", "Олег"], answer: "Олег" },
+            { question: "Як називався головний закон Галицько-Волинського князівства?", options: ["\"Руська правда\"", "\"Литовські статути\"", "\"Галицький літопис\"", "\"Закон Божий\""], answer: "\"Руська правда\"" },
+            { question: "Яке місто стало центром Галицько-Волинського князівства після занепаду Галича?", options: ["Київ", "Холм", "Чернігів", "Луцьк"], answer: "Холм" },
+            { question: "Яке князівство стало спадкоємцем Київської Русі після її занепаду?", options: ["Литовське князівство", "Польське королівство", "Галицько-Волинське князівство", "Московське князівство"], answer: "Галицько-Волинське князівство" },
+            { question: "Яка битва відбулася у 1362 році між литовськими військами та монголами?", options: ["Битва на річці Калка", "Битва на Синіх Водах", "Битва під Оршею", "Битва під Галичем"], answer: "Битва на Синіх Водах" },
+            { question: "Хто був засновником Литовсько-Руської держави?", options: ["Данило Галицький", "Міндовг", "Ольгерд", "Вітовт"], answer: "Міндовг" },
+            { question: "Який князь відомий своєю боротьбою проти монголів у XIV столітті?", options: ["Данило Галицький", "Ольгерд", "Вітовт", "Костянтин Острозький"], answer: "Ольгерд" },
+            { question: "Яке місто було захоплене татарами у 1482 році?", options: ["Львів", "Київ", "Чернігів", "Кам'янець-Подільський"], answer: "Київ" },
+            { question: "Хто очолив оборону Києва від татар у 1482 році?", options: ["Костянтин Острозький", "Семен Олелькович", "Данило Галицький", "Свидригайло"], answer: "Семен Олелькович" },
+            { question: "Як називалося військове формування козаків у XV столітті?", options: ["Гетьманщина", "Запорізька Січ", "Литовське військо", "Королівська гвардія"], answer: "Запорізька Січ" },
+            { question: "Яка держава найбільше вплинула на українські землі в XV столітті?", options: ["Османська імперія", "Велике князівство Литовське", "Московське князівство", "Польща"], answer: "Велике князівство Литовське" },
+            { question: "Який князь підписав Кревську унію 1385 року?", options: ["Ягайло", "Ольгерд", "Данило Галицький", "Вітовт"], answer: "Ягайло" },
+            { question: "Що означала Кревська унія для українських земель?", options: ["Об’єднання Литви та Польщі", "Приєднання Київської Русі до Візантії", "Падіння Галицько-Волинського князівства", "Встановлення монгольського панування"], answer: "Об’єднання Литви та Польщі" },
+            { question: "Яка битва 1410 року стала вирішальною у війні проти Тевтонського ордену?", options: ["Битва під Синіми Водами", "Битва на річці Калка", "Грюнвальдська битва", "Битва під Оршею"], answer: "Грюнвальдська битва" },
+            { question: "Хто очолив війська Великого князівства Литовського у Грюнвальдській битві?", options: ["Ягайло", "Вітовт", "Данило Галицький", "Костянтин Острозький"], answer: "Вітовт" },
+            { question: "Яке місто стало центром православної культури в XV столітті?", options: ["Київ", "Львів", "Кам'янець-Подільський", "Луцьк"], answer: "Київ" },
+            { question: "Який князь заснував Острозьку академію?", options: ["Данило Галицький", "Костянтин Острозький", "Василь-Костянтин Острозький", "Петро Конашевич-Сагайдачний"], answer: "Василь-Костянтин Острозький" },
+            { question: "Який князь розширив територію Великого князівства Литовського на українські землі?", options: ["Міндовг", "Ольгерд", "Вітовт", "Ягайло"], answer: "Ольгерд" },
+            { question: "У якому році відбулася Люблінська унія?", options: ["1385", "1410", "1569", "1654"], answer: "1569" },
+            { question: "Яка держава виникла в результаті Люблінської унії?", options: ["Велике князівство Литовське", "Річ Посполита", "Московське царство", "Гетьманщина"], answer: "Річ Посполита" },
+            { question: "Хто очолив українські війська в битві під Оршею 1514 року?", options: ["Вітовт", "Костянтин Острозький", "Данило Галицький", "Ольгерд"], answer: "Костянтин Острозький" },
+            { question: "Що таке \"магдебурзьке право\"?", options: ["Особливий вид податку", "Система військової служби", "Право міст на самоврядування", "Кодекс законів Київської Русі"], answer: "Право міст на самоврядування" },
+            { question: "Яке українське місто першим отримало магдебурзьке право?", options: ["Київ", "Львів", "Дрогобич", "Луцьк"], answer: "Львів" },
+            { question: "Хто такі \"козакі-характерники\"?", options: ["Народні лікарі", "Воїни, яким приписували магічні здібності", "Запорожці, які охороняли кордон", "Полководці козацького війська"], answer: "Воїни, яким приписували магічні здібності" },
+            { question: "Як називали обраного керівника Запорізької Січі?", options: ["Князь", "Гетьман", "Кошовий отаман", "Полковник"], answer: "Кошовий отаман" },
+            { question: "Яка головна річка служила центром Запорізької Січі?", options: ["Дністер", "Дніпро", "Буг", "Дон"], answer: "Дніпро" },
+            { question: "Яка подія 1596 року призвела до утворення Української греко-католицької церкви?", options: ["Люблінська унія", "Берестейська унія", "Повстання Хмельницького", "Кревська унія"], answer: "Берестейська унія" },
+            { question: "Яка битва в 1621 році зупинила турецький наступ на Україну?", options: ["Битва під Берестечком", "Хотинська битва", "Битва під Конотопом", "Битва на Синіх Водах"], answer: "Хотинська битва" },
+            { question: "Який гетьман брав участь у Хотинській битві?", options: ["Петро Конашевич-Сагайдачний", "Богдан Хмельницький", "Іван Виговський", "Павло Полуботок"], answer: "Петро Конашевич-Сагайдачний" }
+        ];
+        
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+        
+        function loadQuiz() {
+            const container = document.getElementById("quiz-container");
+            container.innerHTML = "";
+            let score = 0;
+            
+            const selectedQuestions = shuffle([...questions]).slice(0, 12);
+            
+            selectedQuestions.forEach((q, index) => {
+                const box = document.createElement("div");
+                box.classList.add("question-box");
+                
+                const question = document.createElement("div");
+                question.classList.add("question");
+                question.textContent = `${index + 1}. ${q.question}`;
+                
+                const answers = document.createElement("div");
+                answers.classList.add("answers");
+                
+                shuffle(q.options).forEach(option => {
+                    const label = document.createElement("label");
+                    const input = document.createElement("input");
+                    input.type = "radio";
+                    input.name = `question${index}`;
+                    input.value = option;
+                    input.onclick = function() {
+                        if (option === q.answer) {
+                            label.classList.add("correct");
+                            score++;
+                        } else {
+                            label.classList.add("incorrect");
+                            const correctLabel = [...answers.children].find(l => l.textContent.includes(q.answer));
+                            correctLabel.classList.add("correct");
+                        }
+                        document.getElementById("score").textContent = `Правильних відповідей: ${score}/12`;
+                        [...answers.children].forEach(l => l.querySelector("input").disabled = true);
+                    };
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(` ${option}`));
+                    answers.appendChild(label);
+                });
+                
+                box.appendChild(question);
+                box.appendChild(answers);
+                container.appendChild(box);
+            });
+        }
+        
+        function resetQuiz() {
+            document.getElementById("score").textContent = "Правильних відповідей: 0/12";
+            loadQuiz();
+        }
+        
+        loadQuiz();
+    </script>
+</body>
+</html>
