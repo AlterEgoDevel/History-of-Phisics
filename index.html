@@ -10,6 +10,7 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
         .header {
             background-color: #262626;
@@ -30,6 +31,7 @@
             flex: 1;
             min-width: 200px; /* Минимальная ширина для корректного отображения */
             text-align: center;
+            font-size: 32px;
         }
 
         /* Кнопка Reset */
@@ -88,18 +90,26 @@
             font-size: 18px;
             margin-top: 10px;
         }
+        .answers label:hover {
+            background-color: #b4b4b4a9; /* Светло-серый фон */
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.6s ease;
+        }
         .correct {
-            color: green;
+            color: rgba(0, 128, 0, 0.466);
         }
         .incorrect {
-            color: red;
+            color: rgba(255, 0, 0, 0.432);
         }
         .score {
             font-size: 24px;
             font-weight: bold;
             text-align: center;
             margin-top: 20px;
+            margin-bottom: 40px;
         }
+
     </style>
 </head>
 <body>
@@ -154,62 +164,91 @@
         ];
         
         function shuffle(array) {
-            return array.sort(() => Math.random() - 0.5);
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function saveScore(score) {
+        localStorage.setItem("quizScore", score);
+    }
+
+    function loadScore() {
+        const savedScore = localStorage.getItem("quizScore");
+        if (savedScore) {
+            document.getElementById("score").textContent = `Правильних відповідей: ${savedScore}/12`;
         }
-        
-        function loadQuiz() {
-            const container = document.getElementById("quiz-container");
-            container.innerHTML = "";
-            let score = 0;
-            
-            const selectedQuestions = shuffle([...questions]).slice(0, 12);
-            
-            selectedQuestions.forEach((q, index) => {
-                const box = document.createElement("div");
-                box.classList.add("question-box");
-                
-                const question = document.createElement("div");
-                question.classList.add("question");
-                question.textContent = `${index + 1}. ${q.question}`;
-                
-                const answers = document.createElement("div");
-                answers.classList.add("answers");
-                
-                shuffle(q.options).forEach(option => {
-                    const label = document.createElement("label");
-                    const input = document.createElement("input");
-                    input.type = "radio";
-                    input.name = `question${index}`;
-                    input.value = option;
-                    input.onclick = function() {
-                        if (option === q.answer) {
-                            label.classList.add("correct");
-                            score++;
-                        } else {
-                            label.classList.add("incorrect");
-                            const correctLabel = [...answers.children].find(l => l.textContent.includes(q.answer));
-                            correctLabel.classList.add("correct");
-                        }
-                        document.getElementById("score").textContent = `Правильних відповідей: ${score}/12`;
-                        [...answers.children].forEach(l => l.querySelector("input").disabled = true);
-                    };
-                    label.appendChild(input);
-                    label.appendChild(document.createTextNode(` ${option}`));
-                    answers.appendChild(label);
-                });
-                
-                box.appendChild(question);
-                box.appendChild(answers);
-                container.appendChild(box);
+    }
+
+    function loadQuiz() {
+        const container = document.getElementById("quiz-container");
+        container.innerHTML = "";
+        let score = 0;
+
+        const selectedQuestions = shuffle([...questions]).slice(0, 12);
+
+        selectedQuestions.forEach((q, index) => {
+            const box = document.createElement("div");
+            box.classList.add("question-box");
+
+            const question = document.createElement("div");
+            question.classList.add("question");
+            question.textContent = `${index + 1}. ${q.question}`;
+
+            const answers = document.createElement("div");
+            answers.classList.add("answers");
+
+            shuffle(q.options).forEach(option => {
+                const label = document.createElement("label");
+                const input = document.createElement("input");
+                input.type = "radio";
+                input.name = `question${index}`;
+                input.value = option;
+
+                input.onclick = function() {
+                    if (label.dataset.checked) return;
+                    label.dataset.checked = true;
+
+                    if (option === q.answer) {
+                        label.classList.add("correct");
+                        score++;
+                    } else {
+                        label.classList.add("incorrect");
+                        const correctLabel = [...answers.children].find(l => l.querySelector("input").value === q.answer);
+                        correctLabel.classList.add("correct");
+                    }
+
+                    document.getElementById("score").textContent = `Правильних відповідей: ${score}/12`;
+                    saveScore(score);
+                    [...answers.children].forEach(l => l.querySelector("input").disabled = true);
+                };
+
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(` ${option}`));
+                answers.appendChild(label);
             });
-        }
-        
-        function resetQuiz() {
-            document.getElementById("score").textContent = "Правильних відповідей: 0/12";
-            loadQuiz();
-        }
-        
+
+            box.appendChild(question);
+            box.appendChild(answers);
+            container.appendChild(box);
+        });
+
+        loadScore();
+    }
+
+    function resetQuiz() {
+        localStorage.removeItem("quizScore");
+        document.getElementById("score").textContent = "Правильних відповідей: 0/12";
         loadQuiz();
-    </script>
+    }
+
+    function resetQuiz() {
+    if (confirm("Ви впевнені, що хочете почати тест заново?")) {
+        localStorage.removeItem("quizScore");
+        document.getElementById("score").textContent = "Правильних відповідей: 0/12";
+        loadQuiz();
+    }
+}
+
+    document.addEventListener("DOMContentLoaded", loadQuiz);
+</script>
 </body>
 </html>
