@@ -18,7 +18,6 @@
         .red { background: #e74c3c; }
         .clear-button { margin-top: 20px; padding: 10px; font-size: 14px; cursor: pointer; width: 100%; }
         .chart-container { width: 100%; max-width: 100%; overflow-x: auto; }
-        canvas { width: 100% !important; height: 300px !important; display: block; }
         @media (max-width: 768px) {
             th.mobile-hide, td.mobile-hide { display: none; }
             th.mobile-icon, td.mobile-icon { display: table-cell; font-size: 18px; }
@@ -32,9 +31,6 @@
     <div class="container">
         <h1>Статистика вопросов</h1>
         <p id="average-score">Средний процент: 0%</p>
-        <div class="chart-container">
-            <canvas id="statsChart"></canvas>
-        </div>
         <div class="sort-options">
             <label for="sort">Сортировать по:</label>
             <select id="sort">
