@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тести з історії України</title>
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #555555;
@@ -30,7 +34,7 @@
             flex: 1;
             min-width: 200px;
             text-align: center;
-            font-size: 34px;
+            font-size: 24px;
         }
 
         .reset-button {
@@ -44,6 +48,7 @@
             box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
             min-width: 100px;
             margin: 10px;
+            cursor: pointer;
         }
 
         .reset-button:hover {
@@ -79,23 +84,23 @@
             display: block;
             font-size: 18px;
             margin-top: 10px;
+            user-select: none;
         }
-
+        
+        /* Убираем подсветку при наведении */
         .answers label:hover {
             cursor: pointer;
-            border-radius: 5px;
-            color: rgb(129, 129, 129);
-            cursor: pointer;
-            transition: color 0.3s ease;
         }
-
+        
+        /* Оставляем цвета для правильных и неправильных ответов */
         .correct {
-            color: rgba(0, 128, 0, 0.705);
+            color: rgba(0, 128, 0, 0.705) !important;
+        }
+        
+        .incorrect {
+            color: rgba(255, 0, 0, 0.671) !important;
         }
 
-        .incorrect {
-            color: rgba(255, 0, 0, 0.671);
-        }
 
         .score {
             font-size: 24px;
@@ -232,6 +237,16 @@
             document.getElementById("result").textContent = "";
             loadQuiz();
         }
+
+        function resetQuiz() {
+    if (confirm("Ви впевнені, що хочете почати тест заново?")) {
+        localStorage.removeItem("quizScore");
+        document.getElementById("score").textContent = "Правильних відповідей: 0/12";
+        document.getElementById("result").textContent = "";
+        loadQuiz();
+    }
+}
+
 
         loadQuiz();
     </script>
