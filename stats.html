@@ -6,24 +6,78 @@
     <title>Статистика</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #222; color: white; }
-        .container { width: 80%; margin: auto; display: flex; flex-direction: column; align-items: center; }
-        .sort-options { margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border: 1px solid white; text-align: center; }
-        th { background: #444; }
-        .green { background: #2ecc71; }
-        .yellow { background: #f1c40f; }
-        .red { background: #e74c3c; }
-        .clear-button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        canvas { max-width: 100%; height: 300px !important; }
+        body { 
+            font-family: Arial, 
+            sans-serif; text-align: 
+            center; background: #222; 
+            color: white; 
+            margin: 0; 
+            padding: 10px; 
+        }
+        .container { 
+            width: 95%; 
+            max-width: 600px; 
+            margin: auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .sort-options {   
+            margin: 20px 0; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            font-size: 14px; 
+        }
+        th, td { 
+            padding: 8px; 
+            border: 1px solid white; 
+            text-align: center; 
+            word-break: break-word; 
+        }
+        th { 
+            background: #444; 
+        }
+        .green { 
+            background: #2ecc71; 
+        }
+        .yellow { 
+            background: #f1c40f; 
+        }
+        .red { 
+            background: #e74c3c; 
+        }
+        .clear-button { 
+            margin-top: 20px; 
+            margin-bottom: 80px;
+            padding: 10px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            width: 100%; 
+        }
+        canvas { 
+            width: 100% !important; 
+            height: 300px !important; 
+            display: block; 
+        }
+        @media (max-width: 480px) {
+            th, td { 
+                padding: 5px; 
+                font-size: 12px; 
+            }
+            .clear-button { 
+                font-size: 12px; 
+                padding: 8px; 
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Статистика вопросов</h1>
         <p id="average-score">Средний процент: 0%</p>
-        <canvas id="statsChart"></canvas>
         <div class="sort-options">
             <label for="sort">Сортировать по:</label>
             <select id="sort">
@@ -37,7 +91,7 @@
                     <th>Вопрос</th>
                     <th>Правильные</th>
                     <th>Неправильные</th>
-                    <th>Всего попыток</th>
+                    <th>Попытки</th>
                     <th>Процент</th>
                     <th>Дата</th>
                 </tr>
@@ -48,96 +102,71 @@
     </div>
     <script>
         let stats = [];
-try {
-    let rawData = localStorage.getItem("quizStats");
-    stats = rawData ? JSON.parse(rawData) : [];
-} catch (error) {
-    console.error("Ошибка при загрузке статистики:", error);
-}
-
-let chartInstance = null;
-function renderTable(sortBy) {
-    let table = document.getElementById("stats-table");
-    table.innerHTML = "";
-    
-    if (stats.length === 0) {
-        table.innerHTML = '<tr><td colspan="6">Статистика отсутствует</td></tr>';
-        document.getElementById("average-score").textContent = "Средний процент: 0%";
-        return;
-    }
-    
-    if (sortBy === "accuracy") {
-        stats.sort((a, b) => (b.correct / (b.correct + b.wrong)) - (a.correct / (a.correct + a.wrong)));
-    } else if (sortBy === "attempts") {
-        stats.sort((a, b) => (b.correct + b.wrong) - (a.correct + a.wrong));
-    }
-    
-    let totalPercent = 0;
-    stats.forEach(item => {
-        let attempts = item.correct + item.wrong;
-        let percent = attempts ? Math.round((item.correct / attempts) * 100) : 0;
-        totalPercent += percent;
-        let row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${item.question}</td>
-            <td>${item.correct}</td>
-            <td>${item.wrong}</td>
-            <td>${attempts}</td>
-            <td class="${getColorClass(percent)}">${percent}%</td>
-            <td>${item.date || "Неизвестно"}</td>
-        `;
-        table.appendChild(row);
-    });
-    
-    let averageScore = stats.length ? Math.round(totalPercent / stats.length) : 0;
-    document.getElementById("average-score").textContent = `Средний процент: ${averageScore}%`;
-    renderChart();
-}
-
-function getColorClass(percent) {
-    if (percent >= 80) return "green";
-    if (percent >= 50) return "yellow";
-    return "red";
-}
-
-document.getElementById("sort").addEventListener("change", function () {
-    renderTable(this.value);
-});
-
-function clearStats() {
-    if (confirm("Вы уверены, что хотите очистить статистику?")) {
-        localStorage.removeItem("quizStats");
-        stats = [];
-        renderTable("accuracy");
-    }
-}
-
-function renderChart() {
-    let ctx = document.getElementById("statsChart").getContext("2d");
-    if (chartInstance) chartInstance.destroy();
-    
-    let labels = stats.map(item => item.question);
-    let data = stats.map(item => item.correct);
-    
-    chartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: labels,
-            datasets: [{
-                label: "Количество правильных ответов",
-                data: data,
-                backgroundColor: "#2ecc71"
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
+        try {
+            let rawData = localStorage.getItem("quizStats");
+            stats = rawData ? JSON.parse(rawData) : [];
+        } catch (error) {
+            console.error("Ошибка при загрузке статистики:", error);
         }
-    });
-}
-
-document.addEventListener("DOMContentLoaded", () => renderTable("accuracy"));
-
+        
+        let chartInstance = null;
+        function renderTable(sortBy) {
+            let table = document.getElementById("stats-table");
+            table.innerHTML = "";
+            
+            if (stats.length === 0) {
+                table.innerHTML = '<tr><td colspan="6">Статистика отсутствует</td></tr>';
+                document.getElementById("average-score").textContent = "Средний процент: 0%";
+                return;
+            }
+            
+            if (sortBy === "accuracy") {
+                stats.sort((a, b) => (b.correct / (b.correct + b.wrong)) - (a.correct / (a.correct + a.wrong)));
+            } else if (sortBy === "attempts") {
+                stats.sort((a, b) => (b.correct + b.wrong) - (a.correct + a.wrong));
+            }
+            
+            let totalPercent = 0;
+            stats.forEach(item => {
+                let attempts = item.correct + item.wrong;
+                let percent = attempts ? Math.round((item.correct / attempts) * 100) : 0;
+                totalPercent += percent;
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.question}</td>
+                    <td>${item.correct}</td>
+                    <td>${item.wrong}</td>
+                    <td>${attempts}</td>
+                    <td class="${getColorClass(percent)}">${percent}%</td>
+                    <td>${item.date || "Неизвестно"}</td>
+                `;
+                table.appendChild(row);
+            });
+            
+            let averageScore = stats.length ? Math.round(totalPercent / stats.length) : 0;
+            document.getElementById("average-score").textContent = `Средний процент: ${averageScore}%`;
+            renderChart();
+        }
+        
+        function getColorClass(percent) {
+            if (percent >= 80) return "green";
+            if (percent >= 50) return "yellow";
+            return "red";
+        }
+        
+        document.getElementById("sort").addEventListener("change", function () {
+            renderTable(this.value);
+        });
+        
+        function clearStats() {
+            if (confirm("Вы уверены, что хотите очистить статистику?")) {
+                localStorage.removeItem("quizStats");
+                stats = [];
+                renderTable("accuracy");
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => renderTable("accuracy"));
     </script>
 </body>
 </html>
