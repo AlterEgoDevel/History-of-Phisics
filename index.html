@@ -146,11 +146,14 @@
             background-color: #444;
         }
 
+        
+
     </style>
 </head>
 <body>
     <div class="header">
         <div>Тести з історії України (7 клас)</div>
+
         <button class="reset-button" onclick="resetQuiz()">Reset</button>
     </div>
     <div class="menu">
@@ -210,9 +213,14 @@
 
         let score = 0;
 
-function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
-}
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
 
 function calculateResults(score) {
     const percentage = (score / 12) * 100;
@@ -305,7 +313,39 @@ function resetQuiz() {
 
 loadQuiz();
 
+function checkTestCompletion() {
+    if (score === 12) { // Проверяем, все ли ответы правильные
+        let balance = localStorage.getItem("balance") ? parseInt(localStorage.getItem("balance")) : 0;
+        balance += 5;
+        localStorage.setItem("balance", balance);
+        alert("Вітаємо! Ви отримали 5 грн за 12/12 правильних відповідей.");
+    }
+}
 
+// Вызовем эту функцию при каждом ответе
+function updateStats(question, isCorrect) {
+    let stats = JSON.parse(localStorage.getItem("quizStats")) || [];
+    let statIndex = stats.findIndex(q => q.question === question);
+    if (statIndex !== -1) {
+        if (isCorrect) stats[statIndex].correct++;
+        else stats[statIndex].wrong++;
+        stats[statIndex].date = new Date().toLocaleDateString();
+    } else {
+        stats.push({
+            question: question,
+            correct: isCorrect ? 1 : 0,
+            wrong: isCorrect ? 0 : 1,
+            date: new Date().toLocaleDateString()
+        });
+    }
+    localStorage.setItem("quizStats", JSON.stringify(stats));
+
+    checkTestCompletion(); // Проверяем, достиг ли пользователь 12/12
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadQuiz();
+});
     </script>
 </body>
 </html>
