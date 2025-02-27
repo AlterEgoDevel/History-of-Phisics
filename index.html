@@ -68,7 +68,7 @@
         }
 
         .question-box {
-            background-color: #d9d9d9;
+            background-color: #d9d9d9bd;
             padding: 20px;
             margin-bottom: 40px;
             border-radius: 10px;
@@ -119,6 +119,18 @@
             margin-bottom: 80px;
             color: aliceblue;
         }
+        .stats-link {
+            color: white;
+            font-size: 20px;
+            text-decoration: none;
+            padding: 15px;
+            display: block;
+            text-align: center;
+        }
+        .stats-link:hover {
+            background-color: #444;
+        }
+
     </style>
 </head>
 <body>
@@ -126,7 +138,9 @@
         <div>Тести з історії України (7 клас)</div>
         <button class="reset-button" onclick="resetQuiz()">Reset</button>
     </div>
-    <div class="menu"></div>
+    <div class="menu">
+        <a href="stats.html" class="stats-link">Статистика</a>
+    </div>    
     <div class="container" id="quiz-container"></div>
     <div class="score" id="score">Правильних відповідей: 0/12</div>
     <div class="result" id="result"></div>
@@ -152,103 +166,102 @@
 
         let score = 0;
 
-        function shuffle(array) {
-            return array.sort(() => Math.random() - 0.5);
-        }
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
 
-        function calculateResults(score) {
-            const percentage = (score / 12) * 100;
-            let grade = '';
+function calculateResults(score) {
+    const percentage = (score / 12) * 100;
+    let grade = '';
+    if (percentage >= 90) grade = '12';
+    else if (percentage >= 80) grade = '11';
+    else if (percentage >= 70) grade = '10';
+    else if (percentage >= 60) grade = '9';
+    else if (percentage >= 50) grade = '8';
+    else if (percentage >= 40) grade = '7';
+    else if (percentage >= 30) grade = '6';
+    else if (percentage >= 20) grade = '5';
+    else grade = '4';
+    const resultText = `Оцінка: ${grade} | Процент правильних відповідей: ${percentage.toFixed(2)}%`;
+    document.getElementById("result").textContent = resultText;
+}
 
-            if (percentage >= 90) grade = '12';
-            else if (percentage >= 80) grade = '11';
-            else if (percentage >= 70) grade = '10';
-            else if (percentage >= 60) grade = '9';
-            else if (percentage >= 50) grade = '8';
-            else if (percentage >= 40) grade = '7';
-            else if (percentage >= 30) grade = '6';
-            else if (percentage >= 20) grade = '5';
-            else grade = '4';
-
-            const resultText = `Оцінка: ${grade} | Процент правильних відповідей: ${percentage.toFixed(2)}%`;
-            document.getElementById("result").textContent = resultText;
-        }
-
-        function loadQuiz() {
-            const container = document.getElementById("quiz-container");
-            container.innerHTML = "";
-            score = 0;
-
-            const selectedQuestions = shuffle([...questions]).slice(0, 12);
-
-            selectedQuestions.forEach((q, index) => {
-                const box = document.createElement("div");
-                box.classList.add("question-box");
-
-                const question = document.createElement("div");
-                question.classList.add("question");
-                question.textContent = `${index + 1}. ${q.question}`;
-
-                const answers = document.createElement("div");
-                answers.classList.add("answers");
-
-                shuffle(q.options).forEach(option => {
-                    const label = document.createElement("label");
-                    const input = document.createElement("input");
-                    input.type = "radio";
-                    input.name = `question${index}`;
-                    input.value = option;
-
-                    input.onclick = function() {
-                        if (input.value === q.answer) {
-                            score++;
-                            label.classList.add("correct");
-                        } else {
-                            label.classList.add("incorrect");
-                            // Display the correct answer
-                            answers.querySelectorAll("label").forEach(lbl => {
-                                if (lbl.textContent.includes(q.answer)) {
-                                    lbl.classList.add("correct");
-                                }
-                            });
+function loadQuiz() {
+    const container = document.getElementById("quiz-container");
+    container.innerHTML = "";
+    score = 0;
+    const selectedQuestions = shuffle([...questions]).slice(0, 12);
+    selectedQuestions.forEach((q, index) => {
+        const box = document.createElement("div");
+        box.classList.add("question-box");
+        const question = document.createElement("div");
+        question.classList.add("question");
+        question.textContent = `${index + 1}. ${q.question}`;
+        const answers = document.createElement("div");
+        answers.classList.add("answers");
+        shuffle(q.options).forEach(option => {
+            const label = document.createElement("label");
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = `question${index}`;
+            input.value = option;
+            input.onclick = function() {
+                if (input.value === q.answer) {
+                    score++;
+                    label.classList.add("correct");
+                    updateStats(q.question, true); // Запись статистики
+                } else {
+                    label.classList.add("incorrect");
+                    answers.querySelectorAll("label").forEach(lbl => {
+                        if (lbl.textContent.includes(q.answer)) {
+                            lbl.classList.add("correct");
                         }
+                    });
+                    updateStats(q.question, false); // Запись статистики
+                }
+                document.getElementById("score").textContent = `Правильних відповідей: ${score}/12`;
+                calculateResults(score);
+                answers.querySelectorAll('input').forEach(input => input.disabled = true);
+            };
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(option));
+            answers.appendChild(label);
+        });
+        box.appendChild(question);
+        box.appendChild(answers);
+        container.appendChild(box);
+    });
+}
 
-                        document.getElementById("score").textContent = `Правильних відповідей: ${score}/12`;
-                        calculateResults(score);
-                        // Disable all radio buttons after answering
-                        const allInputs = answers.querySelectorAll('input');
-                        allInputs.forEach(input => input.disabled = true);
-                    };
+function updateStats(question, isCorrect) {
+    let stats = JSON.parse(localStorage.getItem("quizStats")) || [];
+    let statIndex = stats.findIndex(q => q.question === question);
+    if (statIndex !== -1) {
+        if (isCorrect) stats[statIndex].correct++;
+        else stats[statIndex].wrong++;
+        stats[statIndex].date = new Date().toLocaleDateString();
+    } else {
+        stats.push({
+            question: question,
+            correct: isCorrect ? 1 : 0,
+            wrong: isCorrect ? 0 : 1,
+            date: new Date().toLocaleDateString()
+        });
+    }
+    localStorage.setItem("quizStats", JSON.stringify(stats));
+}
 
-                    label.appendChild(input);
-                    label.appendChild(document.createTextNode(option));
-                    answers.appendChild(label);
-                });
-
-                box.appendChild(question);
-                box.appendChild(answers);
-                container.appendChild(box);
-            });
-        }
-
-        function resetQuiz() {
-            score = 0;
-            document.getElementById("score").textContent = `Правильних відповідей: 0/12`;
-            document.getElementById("result").textContent = "";
-            loadQuiz();
-        }
-
-        function resetQuiz() {
+function resetQuiz() {
     if (confirm("Ви впевнені, що хочете почати тест заново?")) {
-        localStorage.removeItem("quizScore");
         document.getElementById("score").textContent = "Правильних відповідей: 0/12";
         document.getElementById("result").textContent = "";
         loadQuiz();
     }
 }
 
+loadQuiz();
 
-        loadQuiz();
+
     </script>
 </body>
 </html>
