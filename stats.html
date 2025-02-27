@@ -20,12 +20,14 @@
         .clear-button { margin-top: 20px; margin-bottom: 80px; padding: 10px; font-size: 14px; cursor: pointer; width: 100%; }
         .chart-container { width: 100%; max-width: 100%; overflow-x: auto; }
         .icon { font-size: 18px; }
+        .balance { font-size: 18px; margin: 10px 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Статистика вопросов</h1>
         <p id="average-score">Средний процент: 0%</p>
+        <p class="balance">Заработано: <span id="balance">0</span> грн</p>
         <div class="sort-options">
             <label for="sort">Сортировать по:</label>
             <select id="sort">
@@ -50,14 +52,17 @@
     </div>
     <script>
         let stats = [];
+        let balance = 0;
         try {
             let rawData = localStorage.getItem("quizStats");
             stats = rawData ? JSON.parse(rawData) : [];
+            balance = parseInt(localStorage.getItem("balance")) || 0;
         } catch (error) {
             console.error("Ошибка при загрузке статистики:", error);
         }
         
-        let chartInstance = null;
+        document.getElementById("balance").textContent = balance;
+
         function renderTable(sortBy) {
             let table = document.getElementById("stats-table");
             table.innerHTML = "";
@@ -93,7 +98,6 @@
             
             let averageScore = stats.length ? Math.round(totalPercent / stats.length) : 0;
             document.getElementById("average-score").textContent = `Средний процент: ${averageScore}%`;
-            renderChart();
         }
         
         function getColorClass(percent) {
@@ -109,7 +113,10 @@
         function clearStats() {
             if (confirm("Вы уверены, что хотите очистить статистику?")) {
                 localStorage.removeItem("quizStats");
+                localStorage.removeItem("balance");
                 stats = [];
+                balance = 0;
+                document.getElementById("balance").textContent = balance;
                 renderTable("accuracy");
             }
         }
