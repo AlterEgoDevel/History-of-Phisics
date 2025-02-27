@@ -16,15 +16,9 @@
         .green { background: #2ecc71; }
         .yellow { background: #f1c40f; }
         .red { background: #e74c3c; }
-        .clear-button { margin-top: 20px; padding: 10px; font-size: 14px; cursor: pointer; width: 100%; }
+        .clear-button { margin-top: 20px; margin-bottom: 80px; padding: 10px; font-size: 14px; cursor: pointer; width: 100%; }
         .chart-container { width: 100%; max-width: 100%; overflow-x: auto; }
-        @media (max-width: 768px) {
-            th.mobile-hide, td.mobile-hide { display: none; }
-            th.mobile-icon, td.mobile-icon { display: table-cell; font-size: 18px; }
-        }
-        @media (min-width: 769px) {
-            th.mobile-icon, td.mobile-icon { display: none; }
-        }
+        .icon { font-size: 18px; }
     </style>
 </head>
 <body>
@@ -42,16 +36,11 @@
             <thead>
                 <tr>
                     <th>Вопрос</th>
-                    <th class="mobile-hide">Правильные</th>
-                    <th class="mobile-hide">Неправильные</th>
-                    <th class="mobile-hide">Попытки</th>
-                    <th class="mobile-hide">Процент</th>
-                    <th class="mobile-hide">Дата</th>
-                    <th class="mobile-icon"><i class="fas fa-check-circle"></i></th>
-                    <th class="mobile-icon"><i class="fas fa-times-circle"></i></th>
-                    <th class="mobile-icon"><i class="fas fa-redo"></i></th>
-                    <th class="mobile-icon"><i class="fas fa-percentage"></i></th>
-                    <th class="mobile-icon"><i class="fas fa-calendar-alt"></i></th>
+                    <th><i class="fas fa-check-circle icon"></i></th>
+                    <th><i class="fas fa-times-circle icon"></i></th>
+                    <th><i class="fas fa-redo icon"></i></th>
+                    <th><i class="fas fa-percentage icon"></i></th>
+                    <th><i class="fas fa-calendar-alt icon"></i></th>
                 </tr>
             </thead>
             <tbody id="stats-table"></tbody>
